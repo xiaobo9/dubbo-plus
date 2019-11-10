@@ -1,27 +1,32 @@
 package net.dubboclub.restful;
 
-import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.common.extension.ExtensionFactory;
 import com.alibaba.dubbo.common.extension.ExtensionLoader;
-import com.alibaba.dubbo.common.utils.ConfigUtils;
 import com.alibaba.dubbo.remoting.http.HttpBinder;
 import com.alibaba.dubbo.remoting.http.HttpServer;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.dubbo.rpc.protocol.AbstractProxyProtocol;
+import net.dubboclub.restful.util.ContainerPortUtils;
+
 import net.dubboclub.restful.client.RestfulInvoker;
 import net.dubboclub.restful.export.RestfulHandler;
 import net.dubboclub.restful.export.mapping.ServiceMappingContainer;
-import net.dubboclub.restful.util.RestfulConstants;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by bieber on 2015/11/5.
  */
 public class RestfulProtocol extends AbstractProxyProtocol{
+    
+    /** logger */
+    private Logger logger = LoggerFactory.getLogger(RestfulProtocol.class);
     
     private static final Map<Class<?>,Object> REFER_MAPPER = new HashMap<Class<?>, Object>();
     
@@ -36,14 +41,16 @@ public class RestfulProtocol extends AbstractProxyProtocol{
 
     @Override
     protected <T> Runnable doExport(T impl, Class<T> type, final URL url) throws RpcException {
-        String contextPath = ConfigUtils.getProperty("dubbo.protocol.restful.contextpath","/");
+        // TODO contextPath
+        String contextPath = url.getPath().substring(0, url.getPath().indexOf(type.getName()));
+
         String addr = url.getIp() + ":" + url.getPort();
         HttpServer server = SERVER_MAPPER.get(addr);
         if (server == null) {
             server = httpBinder.bind(url, new RestfulHandler(SERVICE_MAPPING_CONTAINER,contextPath));
             SERVER_MAPPER.put(addr, server);
         }
-        SERVICE_MAPPING_CONTAINER.registerService(url,type,impl);
+        SERVICE_MAPPING_CONTAINER.registerService(url,contextPath,type,impl);
         return new Runnable() {
             @Override
             public void run() {
@@ -67,7 +74,13 @@ public class RestfulProtocol extends AbstractProxyProtocol{
 
     @Override
     public int getDefaultPort() {
-        return 8080;
+        String portStr = ContainerPortUtils.getPort();
+        try {
+            return Integer.valueOf(portStr);
+        } catch (Exception e) {
+            logger.info("{}", portStr);
+            return 8080;
+        }
     }
 
     public void setHttpBinder(HttpBinder httpBinder) {

@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
+
     <name>dubbo-plus</name>
     <description>dubbo-plus is the plugin of Dubbo RPC framework.</description>
     <url>http://www.dubboclub.net/</url>
@@ -18,7 +18,7 @@
         <findbugs.excludeFilterFile>findbugs-exclude.xml</findbugs.excludeFilterFile>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        
+
         <java_source_version>1.6</java_source_version>
         <java_target_version>1.6</java_target_version>
         <file_encoding>UTF-8</file_encoding>
@@ -97,6 +97,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>${maven_source_plugin_version}</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -173,7 +174,7 @@
         <developerConnection>scm:git:https://github.com/dubboclub/dubbo-plus.git</developerConnection>
         <url>https://github.com/dubboclub/dubbo-plus.git</url>
     </scm>
-    
+
     <profiles>
         <profile>
             <id>release</id>
@@ -197,7 +198,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.9.1</version>
+                        <version>2.10.4</version>
                         <executions>
                             <execution>
                                 <phase>package</phase>

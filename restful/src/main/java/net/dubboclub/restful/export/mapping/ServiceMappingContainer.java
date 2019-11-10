@@ -28,8 +28,8 @@ public class ServiceMappingContainer {
 
     private static ConcurrentHashMap<String, ServiceHandler> SERVICE_MAPPING = new ConcurrentHashMap<String, ServiceHandler>();
 
-    public void registerService(URL url, Class serviceType, Object impl) {
-        String contextPath = url.getParameter(RestfulConstants.CONTEXT_PATH,"/");
+    public void registerService(URL url, String contextPath, Class serviceType, Object impl) {
+//        String contextPath = url.getParameter(RestfulConstants.CONTEXT_PATH,"/");
         String path  =StringUtils.replaceOnce(url.getPath(),contextPath,"");
         if(StringUtils.startsWith(path,"/")){
             path = StringUtils.replaceOnce(path,"/","");
@@ -50,11 +50,11 @@ public class ServiceMappingContainer {
         //路径并没有匹配，那么说明这个服务存在多个版本实现，前端请求的路径是直接接口请求，所以需要判断接口信息以及版本和分组
         Collection<ServiceHandler> serviceHandlerCollection = SERVICE_MAPPING.values();
         for (ServiceHandler serviceHandler : serviceHandlerCollection) {
-            if (serviceHandler.getServiceType().getName().equals(path)||serviceHandler.getServiceType().getSimpleName().equals(path)) {//请求的path是接口全名
-                if (!StringUtils.isEmpty(serviceHandler.getVersion())
-                        && !StringUtils.isEmpty(serviceHandler.getGroup())) {
-                    if (serviceHandler.getVersion().equals(entity.getVersion())
-                            && serviceHandler.getGroup().equals(entity.getGroup())) {
+            Class serviceType = serviceHandler.getServiceType();
+            //请求的path是接口全名
+            if (serviceType.getName().equals(path) || serviceType.getSimpleName().equals(path)) {
+                if (!StringUtils.isEmpty(serviceHandler.getVersion()) && !StringUtils.isEmpty(serviceHandler.getGroup())) {
+                    if (serviceHandler.getVersion().equals(entity.getVersion()) && serviceHandler.getGroup().equals(entity.getGroup())) {
                         return serviceHandler;
                     }
                 } else {
@@ -66,9 +66,8 @@ public class ServiceMappingContainer {
                         if (serviceHandler.getGroup().equals(entity.getGroup())) {
                             return serviceHandler;
                         }
-                    }else if(StringUtils.isEmpty(serviceHandler.getVersion())
-                            && StringUtils.isEmpty(serviceHandler.getGroup())&&StringUtils.isEmpty(entity.getVersion())
-                            && StringUtils.isEmpty(entity.getGroup())){
+                    } else if (StringUtils.isEmpty(serviceHandler.getVersion()) && StringUtils.isEmpty(serviceHandler.getGroup())
+                            && StringUtils.isEmpty(entity.getVersion()) && StringUtils.isEmpty(entity.getGroup())) {
                         return serviceHandler;
                     }
                 }

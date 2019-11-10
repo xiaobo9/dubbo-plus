@@ -47,6 +47,7 @@ public class RestfulHandler implements HttpHandler {
      */
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        // TODO path 处理
         String requestUri = request.getRequestURI();
         if(!StringUtils.contains(requestUri,contextPath)){
             response.sendError(404);
